@@ -5,6 +5,7 @@ library(MetaboAnalystR)
 library(dplyr)
 library(ggthemr)
 library(heatmaply)
+library(plotly)
 
 ggthemr('fresh')
 
@@ -18,6 +19,8 @@ function(input, output, session) {
                          "disc");
   metData<-SanityCheckData(metData)
   metData<-ReplaceMin(metData);
+  
+  
   
   normData <- function() {
     
@@ -47,15 +50,13 @@ function(input, output, session) {
     
   }
   
-  observe({
-    updateSelectInput(session, "metab",
-                      choices = colnames(normData()[[1]]))
-  })  
-  
+
   output$anva <- renderPrint({
     
-    list(summary(aov(lm(as.formula(paste(input$metab, "expGroup", sep = " ~ ")), data = normData()[[1]]))), 
-         TukeyHSD(aov(lm(as.formula(paste(input$metab, "expGroup", sep = " ~ ")), data = normData()[[1]]))))
+    metFrame <- normData()[[1]]
+    
+    list(summary(aov(lm(as.formula(paste(input$metab, "expGroup", sep = " ~ ")), data = metFrame))), 
+         TukeyHSD(aov(lm(as.formula(paste(input$metab, "expGroup", sep = " ~ ")), data = metFrame))))
   })
   
   output$plot <- renderPlot({
@@ -70,31 +71,35 @@ function(input, output, session) {
   
   output$plotHeatMap <- renderPlotly({
     
+    metFrame <- normData()[[1]]
+    sigMat <- normData()[[2]]
+    
     if (input$sigOnly)
-      heatmaply(normData()[[1]][, colnames(normData()[[1]]) %in% c(rownames(normData()[[2]]), "expGroup")], 
+      suppressWarnings(heatmaply(metFrame[, colnames(metFrame) %in% c(rownames(sigMat), "expGroup")], 
                  scale = "column",
                  colors = colorRampPalette(colors = c("blue", "white", "red")),
                  k_col = 2, k_row = 2, labRow = NULL, labCol = NULL,
-                 margins = c(10, 10, 10, 10))
+                 margins = c(10, 10, 10, 10)))
     else
-      heatmaply(normData()[[1]], 
+      suppressWarnings(heatmaply(metFrame, 
                 scale = "column",
                 colors = colorRampPalette(colors = c("blue", "white", "red")),
                 k_col = 2, k_row = 2, labRow = NULL, labCol = NULL,
-                margins = c(10, 10, 10, 10))
+                margins = c(10, 10, 10, 10)))
     
   })
   
   #./Data/DRPR MetabolomicsAll.csv
   #C:\\Users\\mrj55\\Documents\\Harvard\\Mitchell\\shinyApps\\PRmetabShiny\\Data\\DRPRMetabolomicsAll.csv
+  
+  metDataDRPR <-InitDataObjects("pktable", "ts", FALSE)
+  metDataDRPR<-SetDesignType(metDataDRPR, "g2")
+  metDataDRPR <-Read.TextData(metDataDRPR, "./Data/DRPRMetabolomicsAll.csv", 
+                              "rowts", "disc");
+  metDataDRPR <-SanityCheckData(metDataDRPR)
+  metDataDRPR <-ReplaceMin(metDataDRPR);
+  
   normDataDRPR <- function() {
-    
-    metDataDRPR <-InitDataObjects("pktable", "ts", FALSE)
-    metDataDRPR<-SetDesignType(metDataDRPR, "g2")
-    metDataDRPR <-Read.TextData(metDataDRPR, "./Data/DRPRMetabolomicsAll.csv", 
-                                "rowts", "disc");
-    metDataDRPR <-SanityCheckData(metDataDRPR)
-    metDataDRPR <-ReplaceMin(metDataDRPR);
     
     nMetDataDRPR <- reactive({
       Normalization(metDataDRPR, 
@@ -122,12 +127,6 @@ function(input, output, session) {
     return(nMetFrameDRPR)
     
   }
-  
-  observe({
-    updateSelectInput(session, "metabDRPR",
-                      choices = colnames(normDataDRPR()))
-  })
-  
   
   output$plotDRPR <- renderPlot({
     q <- ggplot(data = normDataDRPR(), aes_string(x = "DietTemp", y = input$metabDRPR,
