@@ -24,10 +24,10 @@ navbarPage("Protein Restriction Metabolomics",
                              )),
                     
                     fluidRow(
-                      column(2,
+                      column(4,
                              verbatimTextOutput('anva')
                              ),
-                      column(10,
+                      column(8,
                              plotlyOutput('plotHeatMap')
                              )
                     

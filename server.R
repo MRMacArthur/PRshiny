@@ -12,14 +12,14 @@ ggthemr('fresh')
 #C:\\Users\\mrj55\\Documents\\Harvard\\Mitchell\\shinyApps\\PRmetabShiny\\Data\\metabolomicsRaw2.csv
 function(input, output, session) {
   
+  metData <-InitDataObjects("specbin", "stat", FALSE)
+  metData<-Read.TextData(metData, "./Data/metabolomicsRaw2.csv", 
+                         "rowtu", 
+                         "disc");
+  metData<-SanityCheckData(metData)
+  metData<-ReplaceMin(metData);
+  
   normData <- function() {
-    
-    metData <-InitDataObjects("specbin", "stat", FALSE)
-    metData<-Read.TextData(metData, "./Data/metabolomicsRaw2.csv", 
-                           "rowtu", 
-                           "disc");
-    metData<-SanityCheckData(metData)
-    metData<-ReplaceMin(metData);
     
     nMetData <- 
       reactive({
