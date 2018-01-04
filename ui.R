@@ -3,6 +3,9 @@ library(mixOmics)
 library(ggplot2)
 library(MetaboAnalystR)
 library(dplyr)
+library(ggthemr)
+library(plotly)
+library(heatmaply)
 
 navbarPage("Protein Restriction Metabolomics",
            tabPanel("Semi-Purified Titration",
@@ -16,7 +19,9 @@ navbarPage("Protein Restriction Metabolomics",
                           selectInput('scaleMet', 'Data Scaling Method',
                                       c('NULL', 'MeanCenter', 'AutoNorm', 'ParetoNorm', 'RangeNorm')),
                           
-                          selectInput('metab', 'Metabolite', ""),
+                          selectInput('metab', 'Metabolite', 
+                                      colnames(read.csv("./Data/metabolomicsRaw2.csv")),
+                                      selected = "glyoxylate"),
                           checkboxInput('sigOnly', 'Heatmap: Only show significant', value = T)
                                     ),
                       column(10,
@@ -44,7 +49,9 @@ navbarPage("Protein Restriction Metabolomics",
                         selectInput('scaleMetDRPR', 'Data Scaling Method',
                                     c('NULL', 'MeanCenter', 'AutoNorm', 'ParetoNorm', 'RangeNorm')),
                         
-                        selectInput('metabDRPR', 'Metabolite', "")
+                        selectInput('metabDRPR', 'Metabolite', 
+                                    colnames(read.csv("./Data/DRPRMetabolomicsAll.csv")),
+                                    "Vitamin_C")
                       ),
                       mainPanel(
                         plotOutput('plotDRPR')
