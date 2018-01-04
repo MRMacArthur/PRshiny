@@ -16,11 +16,16 @@ navbarPage("Protein Restriction Metabolomics",
                                     c('NULL', 'MeanCenter', 'AutoNorm', 'ParetoNorm', 'RangeNorm')),
                         
                         selectInput('metab', 'Metabolite', "")
-                                              ),
+                                  ),
                       mainPanel(
+                        fluidRow(
                         plotOutput('plot')
+                        ),
+                        fluidRow(
+                          plotlyOutput('plotHeatMap')
                       )
                     )
+                  )
            ),
            tabPanel("DR PR Thermoneutrality",
                     sidebarLayout(

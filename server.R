@@ -55,7 +55,18 @@ function(input, output, session) {
     
     print(p)
     
-  }, height=700)
+  })
+  
+  output$plotHeatMap <- renderPlotly({
+    
+    h <- heatmaply(normData(), scale = "column",
+                   colors = colorRampPalette(colors = c("blue", "white", "red")),
+                   k_col = 2, k_row = 2, labRow = NULL, labCol = NULL,
+                   margins = c(10, 10, 10, 10))
+    
+    print(h)
+    
+  })
   
   #./Data/DRPR MetabolomicsAll.csv
   #C:\\Users\\mrj55\\Documents\\Harvard\\Mitchell\\shinyApps\\PRmetabShiny\\Data\\DRPRMetabolomicsAll.csv
